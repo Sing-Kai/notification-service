@@ -1,16 +1,43 @@
-# Codingly.io: Base Serverless Framework Template
+## Notification Service
 
-https://codingly.io
+processAuction will sends to Simple Queue Service and this in turn calls a sendMail Lambda which passes email to Simple Email Service
 
-## What's included
-* Folder structure used consistently across our projects.
-* [serverless-pseudo-parameters plugin](https://www.npmjs.com/package/serverless-pseudo-parameters): Allows you to take advantage of CloudFormation Pseudo Parameters.
-* [serverless-bundle plugin](https://www.npmjs.com/package/serverless-pseudo-parameters): Bundler based on the serverless-webpack plugin - requires zero configuration and fully compatible with ES6/ES7 features.
+sendMail Lambda set up, here sendMail event's come from mailQueue arn 
+```
+functions:
+  sendMail:
+    handler: src/handlers/sendMail.handler
+    events:
+      - sqs:
+          arn: ${self:custom.mailQueue.arn}
+          batchSize: 1
+```
+
+closedAuction from Auction service calls SQS
+
+```
+  const notifySeller = sqs.sendMessage({
+    QueueUrl:process.env.MAIL_QUEUE_URL,
+    MessageBody: JSON.stringify({
+      subject:'Your item has been sold',
+      recipient:seller,
+      body:`Congratulations! You item has been ${title} has been sold for $${amount}`,
+    })
+  }).promise()
+
+  const notifyBidder = sqs.sendMessage({
+    QueueUrl:process.env.MAIL_QUEUE_URL,
+    MessageBody: JSON.stringify({
+      subject:'You won an auction!',
+      recipient:bidder,
+      body:`Congratulations! you got won the bid for ${title} for $${amount}`,
+    })
+  }).promise()
+```
+
 
 ## Getting started
 ```
-sls create --name YOUR_PROJECT_NAME --template-url https://github.com/codingly-io/sls-base
-cd YOUR_PROJECT_NAME
 npm install
 ```
 
