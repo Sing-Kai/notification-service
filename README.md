@@ -41,4 +41,3 @@ closedAuction from Auction service calls SQS
 npm install
 ```
 
-You are ready to go!
