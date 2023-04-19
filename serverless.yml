@@ -2,6 +2,8 @@ service: notification-service
 
 frameworkVersion: "3"
 
+useDotenv: true
+
 provider:
   name: aws
   runtime: nodejs18.x
@@ -15,7 +17,7 @@ provider:
           Action:
             - ses:SendMail
             - ses:SendRawEmail
-          Resource: arn:aws:ses:eu-west-1:394226462971:identity/singkai.chiu@gmail.com
+          Resource: ${env:NOTIFICATION_ARN}  
 
 resources:
   Resources:
